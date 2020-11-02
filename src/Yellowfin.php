@@ -26,6 +26,11 @@ class Yellowfin
      */
     protected $token;
 
+    /**
+     * @var array|mixed
+     */
+    protected $options;
+
     protected $isOauth;
 
     /**
@@ -66,10 +71,11 @@ class Yellowfin
      *
      * @param $token
      */
-    public function __construct($token = '', $uri = '')
+    public function __construct($token = '', $uri = '', $options = [])
     {
         $this->token = $token;
         $this->baseURI = $uri;
+        $this->options = $options;
 
         $this->isOauth = false;
     }
