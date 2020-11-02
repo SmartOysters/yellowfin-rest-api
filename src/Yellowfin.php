@@ -82,7 +82,7 @@ class Yellowfin
      */
     public static function OAuth($config)
     {
-        $new = new self('oauth', 'https://api.farmdecisiontech.net.au/token.php');
+        $new = new self('oauth', $config['uri']);
 
         $new->isOauth = true;
 
