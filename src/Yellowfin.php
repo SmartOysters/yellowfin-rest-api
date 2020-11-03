@@ -6,6 +6,7 @@ use Devio\Pipedrive\Http\PipedriveClient4;
 use Devio\Pipedrive\Http\Request;
 use Devio\Pipedrive\Http\PipedriveClient;
 use GuzzleHttp\Client as GuzzleClient;
+use SmartOysters\Yellowfin\Token\YellowfinToken;
 
 /**
  * @package Yellowfin
@@ -30,8 +31,6 @@ class Yellowfin
      * @var array|mixed
      */
     protected $options;
-
-    protected $isOauth;
 
     /**
      * The OAuth client id.
@@ -61,11 +60,6 @@ class Yellowfin
      */
     protected $storage;
 
-    public function isOauth()
-    {
-        return $this->isOauth;
-    }
-
     /**
      * Pipedrive constructor.
      *
@@ -76,21 +70,17 @@ class Yellowfin
         $this->token = $token;
         $this->baseURI = $uri;
         $this->options = $options;
-
-        $this->isOauth = false;
     }
 
     /**
      * Prepare for OAuth.
      *
      * @param $config
-     * @return FarmDecisionTech
+     * @return Yellowfin
      */
-    public static function OAuth($config)
+    public static function login($config)
     {
         $new = new self('oauth', $config['uri']);
-
-        $new->isOauth = true;
 
         $new->clientId = $config['clientId'];
         $new->clientSecret = $config['clientSecret'];
@@ -178,7 +168,8 @@ class Yellowfin
                 $this->getClientSecret()
             ]
         ]);
-        $response = $client->request('POST', 'https://oauth.pipedrive.com/oauth/token', [
+
+        $response = $client->request('POST', $this->baseURI . 'refresh-tokens', [
             'form_params' => [
                 'grant_type'   => 'authorization_code',
                 'code'         => $code,
@@ -187,7 +178,7 @@ class Yellowfin
         ]);
         $resBody = json_decode($response->getBody());
 
-        $token = new PipedriveToken([
+        $token = new YellowfinToken([
             'accessToken'  => $resBody->access_token,
             'expiresAt'    => time() + $resBody->expires_in,
             'refreshToken' => $resBody->refresh_token,
@@ -217,7 +208,7 @@ class Yellowfin
      */
     protected function resolveClassPath($resource)
     {
-        return 'Devio\\Pipedrive\\Resources\\' . Str::studly($resource);
+        return 'SmartOysters\\Yellowfin\\Resources\\' . Str::studly($resource);
     }
 
     /**
@@ -237,13 +228,7 @@ class Yellowfin
      */
     protected function getClient()
     {
-        if ($this->guzzleVersion >= 6) {
-            return $this->isOauth()
-                ? PipedriveClient::OAuth($this->getBaseURI(), $this->storage, $this)
-                : new PipedriveClient($this->getBaseURI(), $this->token);
-        } else {
-            return new PipedriveClient4($this->getBaseURI(), $this->token);
-        }
+        return YellowfinClient::login($this->getBaseURI(), $this->storage, $this);
     }
 
     /**

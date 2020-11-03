@@ -3,6 +3,7 @@
 namespace SmartOysters\Yellowfin\Token;
 
 use GuzzleHttp\Client as GuzzleClient;
+use SmartOysters\Yellowfin\Yellowfin;
 
 class YellowfinToken
 {
@@ -42,7 +43,7 @@ class YellowfinToken
     protected $scope;
 
     /**
-     * FarmDecisionTech constructor.
+     * Yellowfin constructor.
      *
      * @param $config
      */
@@ -108,7 +109,7 @@ class YellowfinToken
     /**
      * Refresh the token only if needed.
      *
-     * @param $yellowfin
+     * @param Yellowfin $yellowfin
      */
     public function refreshIfNeeded($yellowfin)
     {
@@ -123,7 +124,7 @@ class YellowfinToken
             ]
         ]);
 
-        $response = $client->request('POST', 'https://api.farmdecisiontech.net.au/token.php', [
+        $response = $client->request('POST', $yellowfin->getBaseURI().'refresh-tokens', [
             'form_params' => [
                 'grant_type'   => 'refresh_token',
                 'refresh_token' => $this->refreshToken
