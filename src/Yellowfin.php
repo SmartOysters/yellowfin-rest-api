@@ -1,15 +1,23 @@
 <?php
 
+/*
+ * This file is part of the Yellowfin REST API PHP Package
+ *
+ * (c) James Rickard <james.rickard@smartoysters.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SmartOysters\Yellowfin;
 
-use Devio\Pipedrive\Http\PipedriveClient4;
-use Devio\Pipedrive\Http\Request;
-use Devio\Pipedrive\Http\PipedriveClient;
+use SmartOysters\Yellowfin\Http\Request;
+use SmartOysters\Yellowfin\Http\YellowfinClient;
 use GuzzleHttp\Client as GuzzleClient;
 use SmartOysters\Yellowfin\Token\YellowfinToken;
 
 /**
- * @package Yellowfin
+ * @method Users users()
  */
 class Yellowfin
 {
@@ -208,7 +216,7 @@ class Yellowfin
      */
     protected function resolveClassPath($resource)
     {
-        return 'SmartOysters\\Yellowfin\\Resources\\' . Str::studly($resource);
+        return 'SmartOysters\\Yellowfin\\Resources\\' . $this->capsCase($resource);
     }
 
     /**

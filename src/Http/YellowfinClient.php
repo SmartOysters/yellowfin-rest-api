@@ -51,6 +51,27 @@ class YellowfinClient implements Client
     }
 
     /**
+     * Create an OAuth client.
+     *
+     * @param $url
+     * @param $storage
+     * @param $yellowfin
+     * @return YellowfinClient
+     */
+    public static function OAuth($url, $storage, $yellowfin)
+    {
+        $token = $storage->getToken();
+
+        if (! $token || ! $token->valid()) {
+            $yellowfin->OAuthRedirect();
+        }
+
+        $token->refreshIfNeeded($yellowfin);
+
+        return new self($url, $token);
+    }
+
+    /**
      * Perform a GET request.
      *
      * @param       $url
