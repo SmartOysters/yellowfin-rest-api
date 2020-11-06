@@ -163,12 +163,10 @@ class YellowfinToken
         $response = $client->request('POST', $yellowfin->getBaseURI() . 'access-tokens', []);
 
         $resBody = json_decode($response->getBody()->getContents());
-        $accessToken = $resBody->_embedded->accessToken;
 
-        $this->accessToken = $accessToken->securityToken;
-        $this->expiresAt = time() + $accessToken->expiry;
+        $this->accessToken = $resBody->securityToken;
+        $this->expiresAt = time() + $resBody->expiry;
         $this->tokenType = 'access_token';
-        $this->refreshToken = $resBody->securityToken;
 
         $storage = $yellowfin->getStorage();
 

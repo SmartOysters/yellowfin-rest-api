@@ -29,7 +29,7 @@ class Orgs extends Resource
      * @param array $options
      * @return Response
      */
-    public function add($clientRefId, $name, $defaultTimezone, $customStylePath, $options = [])
+    public function createOrg($clientRefId, $name, $defaultTimezone, $customStylePath, $options = [])
     {
         $options = array_merge(
             compact('clientRefId', 'name', 'defaultTimezone', 'customStylePath'),
@@ -51,7 +51,7 @@ class Orgs extends Resource
      * @param array $options
      * @return Response
      */
-    public function update($ipOrg, $clientRefId, $name, $defaultTimezone, $customStylePath, $options = [])
+    public function updateOrg($ipOrg, $clientRefId, $name, $defaultTimezone, $customStylePath, $options = [])
     {
         $options = array_merge(
             compact('ipOrg', 'clientRefId', 'name', 'defaultTimezone', 'customStylePath'),
@@ -69,7 +69,7 @@ class Orgs extends Resource
      * @param $userId
      * @return Response
      */
-    public function addUserToOrg($ipOrg, $userId)
+    public function addOrgUserAccess($ipOrg, $userId)
     {
         $options = array_merge(
             compact('ipOrg', 'userId')
@@ -86,7 +86,7 @@ class Orgs extends Resource
      * @param $userId
      * @return Response
      */
-    public function removeUserFromOrg($ipOrg, $userId)
+    public function removeOrgUserAccess($ipOrg, $userId)
     {
         $options = array_merge(
             compact('ipOrg', 'userId')
