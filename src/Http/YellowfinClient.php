@@ -38,9 +38,13 @@ class YellowfinClient implements Client
     public function __construct($url, $token, $options = [])
     {
         list($headers, $query) = [[], []];
+        $time_format = $this->milliseconds();
+        $nonce = bin2hex(random_bytes(16));
 
         $headers = [
-            'Authorization' => "Basic $token"
+            'Content-Type' => "application/json",
+            'Accept' => "application/vnd.yellowfin.api-v1+json",
+            'Authorization' => "YELLOWFIN ts={$time_format}, nonce={$nonce}, token={$token->getAccessToken()}"
         ];
 
         $this->client = new GuzzleClient(array_merge([
@@ -63,7 +67,7 @@ class YellowfinClient implements Client
         $token = $storage->getToken();
 
         if (! $token || ! $token->valid()) {
-            $yellowfin->OAuthRedirect();
+            $yellowfin->authorize();
         }
 
         $token->refreshIfNeeded($yellowfin);
@@ -200,5 +204,10 @@ class YellowfinClient implements Client
     public function getClient()
     {
         return $this->client;
+    }
+
+    private function milliseconds() {
+        $mt = explode(' ', microtime());
+        return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000));
     }
 }

@@ -3,10 +3,15 @@
 namespace SmartOysters\Yellowfin\Token;
 
 use GuzzleHttp\Client as GuzzleClient;
+use SmartOysters\Yellowfin\Helpers\StringHelpers;
+use SmartOysters\Yellowfin\Helpers\ArrayHelpers;
 use SmartOysters\Yellowfin\Yellowfin;
 
 class YellowfinToken
 {
+    use StringHelpers;
+    use ArrayHelpers;
+
     /**
      * The access token.
      *
@@ -49,7 +54,7 @@ class YellowfinToken
      */
     public function __construct($config)
     {
-        $config = array_map('camel_case', $config);
+        $config = $this->mapArrayKeys([$this, 'camelCase'], $config);
 
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
@@ -71,7 +76,7 @@ class YellowfinToken
      *
      * @return string
      */
-    public function expiresAt()
+    public function getExpiresAt()
     {
         return $this->expiresAt;
     }
@@ -96,6 +101,11 @@ class YellowfinToken
         return $this->refreshToken;
     }
 
+    public function getScope()
+    {
+        return $this->scope;
+    }
+
     /**
      * Check if the access token exists.
      *
@@ -117,25 +127,26 @@ class YellowfinToken
             return;
         }
 
+        $time_format = $this->milliseconds();
+        $nonce = bin2hex(random_bytes(16));
+
         $client = new GuzzleClient([
-            'auth' => [
-                $yellowfin->getClientId(),
-                $yellowfin->getClientSecret()
+            'headers' => [
+                'Content-Type' => "application/json",
+                'Accept' => "application/vnd.yellowfin.api-v1+json",
+                'Authorization' => "YELLOWFIN ts={$time_format}, nonce={$nonce}, token={$this->getRefreshToken()}"
             ]
         ]);
 
-        $response = $client->request('POST', $yellowfin->getBaseURI().'refresh-tokens', [
-            'form_params' => [
-                'grant_type'   => 'refresh_token',
-                'refresh_token' => $this->refreshToken
-            ]
-        ]);
+        $response = $client->request('POST', $yellowfin->getBaseURI() . 'refresh-tokens', []);
 
-        $tokenInstance = json_decode($response->getBody());
+        $resBody = json_decode($response->getBody()->getContents());
+        $accessToken = $resBody->_embedded->accessToken;
 
-        $this->accessToken = $tokenInstance->access_token;
-        $this->expiresAt = time() + $tokenInstance->expires_in;
-        $this->tokenType = $tokenInstance->token_type;
+        $this->accessToken = $accessToken->securityToken;
+        $this->expiresAt = time() + $accessToken->expiry;
+        $this->tokenType = 'refresh_token';
+        $this->refreshToken = $resBody->securityToken;
 
         $storage = $yellowfin->getStorage();
 
@@ -150,5 +161,10 @@ class YellowfinToken
     public function needsRefresh()
     {
         return (int) $this->expiresAt - time() < 1;
+    }
+
+    private function milliseconds() {
+        $mt = explode(' ', microtime());
+        return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000));
     }
 }

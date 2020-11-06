@@ -12,7 +12,7 @@
 namespace SmartOysters\Yellowfin\Resources;
 
 use SmartOysters\Yellowfin\Resources\Base\Resource;
-use SmartOysters\Yellowfin\Response;
+use SmartOysters\Yellowfin\Http\Response;
 
 class Users extends Resource
 {

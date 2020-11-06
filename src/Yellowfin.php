@@ -11,16 +11,20 @@
 
 namespace SmartOysters\Yellowfin;
 
+use SmartOysters\Yellowfin\Helpers\StringHelpers;
 use SmartOysters\Yellowfin\Http\Request;
 use SmartOysters\Yellowfin\Http\YellowfinClient;
 use GuzzleHttp\Client as GuzzleClient;
 use SmartOysters\Yellowfin\Token\YellowfinToken;
+use SmartOysters\Yellowfin\Resources\Users;
 
 /**
  * @method Users users()
  */
 class Yellowfin
 {
+    use StringHelpers;
+
     /**
      * The base URI.
      *
@@ -55,6 +59,13 @@ class Yellowfin
     protected $clientSecret;
 
     /**
+     * The client organisation reference.
+     *
+     * @var string
+     */
+    protected $clientOrg;
+
+    /**
      * The redirect URL.
      *
      * @var string
@@ -81,25 +92,6 @@ class Yellowfin
     }
 
     /**
-     * Prepare for OAuth.
-     *
-     * @param $config
-     * @return Yellowfin
-     */
-    public static function login($config)
-    {
-        $new = new self('oauth', $config['uri']);
-
-        $new->clientId = $config['clientId'];
-        $new->clientSecret = $config['clientSecret'];
-        $new->redirectUrl = $config['redirectUrl'];
-
-        $new->storage = $config['storage'];
-
-        return $new;
-    }
-
-    /**
      * Get the client ID.
      *
      * @return string
@@ -117,6 +109,16 @@ class Yellowfin
     public function getClientSecret()
     {
         return $this->clientSecret;
+    }
+
+    /**
+     * Get the client organisation reference
+     *
+     * @return string
+     */
+    public function getClientOrg()
+    {
+        return $this->clientOrg;
     }
 
     /**
@@ -140,22 +142,6 @@ class Yellowfin
     }
 
     /**
-     * Redirect to OAuth.
-     */
-    public function OAuthRedirect()
-    {
-        $params = [
-            'client_id'    => $this->clientId,
-            'state'        => '',
-            'redirect_uri' => $this->redirectUrl,
-        ];
-        $query = http_build_query($params);
-        $url = 'https://oauth.pipedrive.com/oauth/authorize?' . $query;
-        header('Location: ' . $url);
-        exit;
-    }
-
-    /**
      * Get current OAuth access token object (which includes refreshToken and expiresAt)
      */
     public function getAccessToken()
@@ -164,32 +150,58 @@ class Yellowfin
     }
 
     /**
-     * OAuth authorization.
+     * Prepare for OAuth.
      *
-     * @param $code
+     * @param $config
+     * @return Yellowfin
      */
-    public function authorize($code)
+    public static function OAuth($config)
     {
+        $new = new self('oauth', $config['uri']);
+
+        $new->clientId = $config['clientId'];
+        $new->clientSecret = $config['clientSecret'];
+        $new->clientOrg = $config['clientOrg'];
+        $new->redirectUrl = $config['redirectUrl'];
+        $new->options = (array_key_exists('options', $config)) ? $config['options'] : [];
+
+        $new->storage = $config['storage'];
+
+        return $new;
+    }
+
+    /**
+     * OAuth authorization.
+     */
+    public function authorize()
+    {
+        $time_format = $this->milliseconds();
+        $nonce = bin2hex(random_bytes(16));
+
         $client = new GuzzleClient([
-            'auth' => [
-                $this->getClientId(),
-                $this->getClientSecret()
+            'headers' => [
+                'Content-Type' => "application/json",
+                'Accept' => "application/vnd.yellowfin.api-v1+json",
+                'Authorization' => "YELLOWFIN ts={$time_format}, nonce={$nonce}"
             ]
         ]);
 
         $response = $client->request('POST', $this->baseURI . 'refresh-tokens', [
-            'form_params' => [
-                'grant_type'   => 'authorization_code',
-                'code'         => $code,
-                'redirect_uri' => $this->redirectUrl,
-            ]
+            'json' => array_merge([
+                'userName'   => $this->getClientId(),
+                'password'   => $this->getClientSecret(),
+                'clientOrgRef' => $this->getClientOrg()
+            ], $this->options)
         ]);
-        $resBody = json_decode($response->getBody());
+
+        $resBody = json_decode($response->getBody()->getContents());
+        $accessToken = $resBody->_embedded->accessToken;
 
         $token = new YellowfinToken([
-            'accessToken'  => $resBody->access_token,
-            'expiresAt'    => time() + $resBody->expires_in,
-            'refreshToken' => $resBody->refresh_token,
+            'access_token'  => $accessToken->securityToken,
+            'expires_at'    => time() + $accessToken->expiry,
+            'refresh_token' => $resBody->securityToken,
+            'token_type' => 'refresh_token'
         ]);
 
         $this->storage->setToken($token);
@@ -232,11 +244,11 @@ class Yellowfin
     /**
      * Get the HTTP client instance.
      *
-     * @return Client
+     * @return YellowfinClient
      */
     protected function getClient()
     {
-        return YellowfinClient::login($this->getBaseURI(), $this->storage, $this);
+        return YellowfinClient::OAuth($this->getBaseURI(), $this->storage, $this);
     }
 
     /**
@@ -292,5 +304,10 @@ class Yellowfin
         if (! in_array($name, get_class_methods(get_class()))) {
             return $this->{$name};
         }
+    }
+
+    private function milliseconds() {
+        $mt = explode(' ', microtime());
+        return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000));
     }
 }
