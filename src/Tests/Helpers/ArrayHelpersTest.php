@@ -94,4 +94,36 @@ class ArrayHelpersTest extends TestCase
 
         $this->assertEquals(['bar' => 'foo', 'baz' => $expected], $mockTrait->arraySet($array, 'foo.baz', $expected), '->arraySet() nested array set in correct key');
     }
+
+
+    public function arrayMapArrayKeysProvider()
+    {
+        return [
+            [ ['fooBarFoo' => 'Joe', 'barFooBar' => 'PHP'], ['foo_bar_foo' => 'Joe', 'bar_foo_bar' => 'PHP'] ],
+            [ ['foo' => 'bar'], ['foo' => 'bar'] ],
+            [ ['barFoo' => 'foo'], ['bar_foo' => 'foo'] ],
+            [ [0 => 'Joe', 0 => 'PHP'], [0 => 'Joe', 0 => 'PHP'] ],
+            [ [ 'fooBar' => [ 'fooFoo' => 'bar', 'barBar' => 'foo', 'bar' => [ 'fooBarFoo' => 'foo', 'fooBarBar' => 'foo' ] ]], [ 'foo_bar' => [
+                'foo_foo' => 'bar',
+                'bar_bar' => 'foo',
+                'bar' => [
+                    'foo_bar_foo' => 'foo',
+                    'foo_bar_bar' => 'foo'
+                ]
+            ]] ]
+        ];
+    }
+
+    /**
+     * @dataProvider arrayMapArrayKeysProvider
+     */
+    public function testMapArrayKeys($result, $trial)
+    {
+        $mockTrait = $this->getMockForTrait(ArrayHelpers::class);
+
+        $this->assertEquals($result, $mockTrait->mapArrayKeys(function ($value) {
+            return lcfirst(implode('', array_map('ucfirst', explode('_', $value))));
+        }, $trial));
+    }
+
 }

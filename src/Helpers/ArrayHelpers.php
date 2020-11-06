@@ -100,4 +100,19 @@ trait ArrayHelpers
         return $array;
     }
 
+    /**
+     * @param callable $function
+     * @param array    $xs
+     * @return array
+     */
+    public function mapArrayKeys($function, $xs) {
+        $out = array();
+
+        foreach ($xs as $key => $value) {
+            $out[$function($key)] = is_array($value) ? $this->mapArrayKeys($function, $value) : $value;
+        }
+
+        return $out;
+    }
+
 }
