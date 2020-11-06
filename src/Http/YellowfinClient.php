@@ -67,7 +67,7 @@ class YellowfinClient implements Client
         $token = $storage->getToken();
 
         if (! $token || ! $token->valid()) {
-            $yellowfin->authorize();
+            $token = $yellowfin->authorize();
         }
 
         $token->refreshIfNeeded($yellowfin);

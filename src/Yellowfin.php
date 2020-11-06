@@ -16,9 +16,11 @@ use SmartOysters\Yellowfin\Http\Request;
 use SmartOysters\Yellowfin\Http\YellowfinClient;
 use GuzzleHttp\Client as GuzzleClient;
 use SmartOysters\Yellowfin\Token\YellowfinToken;
+use SmartOysters\Yellowfin\Resources\Orgs;
 use SmartOysters\Yellowfin\Resources\Users;
 
 /**
+ * @method Orgs orgs()
  * @method Users users()
  */
 class Yellowfin
@@ -196,15 +198,18 @@ class Yellowfin
 
         $resBody = json_decode($response->getBody()->getContents());
         $accessToken = $resBody->_embedded->accessToken;
+        $logout = serialize($resBody->_links->self);
 
         $token = new YellowfinToken([
             'access_token'  => $accessToken->securityToken,
             'expires_at'    => time() + $accessToken->expiry,
             'refresh_token' => $resBody->securityToken,
-            'token_type' => 'refresh_token'
+            'token_type' => 'refresh_token',
+            'logout' => $logout
         ]);
 
         $this->storage->setToken($token);
+        return $token;
     }
 
     /**
@@ -244,7 +249,7 @@ class Yellowfin
     /**
      * Get the HTTP client instance.
      *
-     * @return YellowfinClient
+     * @return Client
      */
     protected function getClient()
     {

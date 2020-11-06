@@ -48,6 +48,13 @@ class YellowfinToken
     protected $scope;
 
     /**
+     * Serialised Logout Address
+     *
+     * @var string
+     */
+    protected $logout;
+
+    /**
      * Yellowfin constructor.
      *
      * @param $config
@@ -101,9 +108,24 @@ class YellowfinToken
         return $this->refreshToken;
     }
 
+    /**
+     * Get the scope.
+     *
+     * @return string
+     */
     public function getScope()
     {
         return $this->scope;
+    }
+
+    /**
+     * Get the logout.
+     *
+     * @return string
+     */
+    public function getLogout()
+    {
+        return $this->logout;
     }
 
     /**
@@ -138,14 +160,14 @@ class YellowfinToken
             ]
         ]);
 
-        $response = $client->request('POST', $yellowfin->getBaseURI() . 'refresh-tokens', []);
+        $response = $client->request('POST', $yellowfin->getBaseURI() . 'access-tokens', []);
 
         $resBody = json_decode($response->getBody()->getContents());
         $accessToken = $resBody->_embedded->accessToken;
 
         $this->accessToken = $accessToken->securityToken;
         $this->expiresAt = time() + $accessToken->expiry;
-        $this->tokenType = 'refresh_token';
+        $this->tokenType = 'access_token';
         $this->refreshToken = $resBody->securityToken;
 
         $storage = $yellowfin->getStorage();

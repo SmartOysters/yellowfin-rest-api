@@ -98,13 +98,13 @@ class Request
         if (!empty($content) || !($response->getStatusCode() == 302 || $response->isSuccess())) {
             if (in_array($response->getStatusCode(), [400, 401, 403, 404, 410])) {
                 throw new ResponseException(
-                    (isset($content->error) ? $content->error->message : "Error unknown."),
+                    (isset($content->description) ? $content->description : "Error unknown."),
                     $response->getStatusCode()
                 );
             }
 
             throw new YellowfinException(
-                isset($content->error) ? $content->error->message : "Error unknown.",
+                isset($content->description) ? $content->description : "Error unknown.",
                 $response->getStatusCode()
             );
         }
