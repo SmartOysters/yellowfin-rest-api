@@ -16,10 +16,12 @@ use SmartOysters\Yellowfin\Http\Request;
 use SmartOysters\Yellowfin\Http\YellowfinClient;
 use GuzzleHttp\Client as GuzzleClient;
 use SmartOysters\Yellowfin\Token\YellowfinToken;
+use SmartOysters\Yellowfin\Resources\Admin;
 use SmartOysters\Yellowfin\Resources\Orgs;
 use SmartOysters\Yellowfin\Resources\Users;
 
 /**
+ * @method Admin admin()
  * @method Orgs orgs()
  * @method Users users()
  */
