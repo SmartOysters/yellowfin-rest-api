@@ -104,7 +104,7 @@ class YellowfinClient implements Client
     public function post($url, $parameters = [])
     {
         $request = new GuzzleRequest('POST', $url);
-        $form = 'form_params';
+        $form = 'json';
         $data = $parameters;
 
         // If any file key is found, we will assume we have to convert the data
