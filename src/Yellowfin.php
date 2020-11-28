@@ -18,11 +18,13 @@ use GuzzleHttp\Client as GuzzleClient;
 use SmartOysters\Yellowfin\Token\YellowfinToken;
 use SmartOysters\Yellowfin\Resources\Admin;
 use SmartOysters\Yellowfin\Resources\Orgs;
+use SmartOysters\Yellowfin\Resources\Roles;
 use SmartOysters\Yellowfin\Resources\Users;
 
 /**
  * @method Admin admin()
  * @method Orgs orgs()
+ * @method Roles roles()
  * @method Users users()
  */
 class Yellowfin
