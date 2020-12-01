@@ -30,13 +30,13 @@ class Admin extends Resource
      * @param string $lastName
      * @param string $languageCode
      * @param string $timeZoneCode
-     * @param array $options
+     * @param array  $options
      * @return Response
      */
     public function createUsersAdmin($userId, $emailAddress, $roleCode, $password, $firstName = '', $lastName = '', $languageCode = '', $timeZoneCode = '', $options = [])
     {
         $options = array_merge(
-            compact('userId', 'emailAddress', 'roleCode', 'password', 'firstName', 'lastName', 'languageCode', 'timeZoneCode'),
+            [compact('userId', 'emailAddress', 'roleCode', 'password', 'firstName', 'lastName', 'languageCode', 'timeZoneCode')],
             $options
         );
 
@@ -76,4 +76,22 @@ class Admin extends Resource
         return $this->request->get('users/:userId', compact('userId'));
     }
 
+    /**
+     * Update the OrgAccess for a User
+     * @link https://developers.yellowfinbi.com/dev/api-docs/current/#operation/addUserOrgAccess
+     *
+     * @param integer $userId
+     * @param integer $orgId
+     * @param array   $options
+     * @return Response
+     */
+    public function addUserOrgAccess($userId, $orgId, $options = [])
+    {
+        $options = array_merge(
+            compact('userId', 'orgId'),
+            $options
+        );
+
+        return $this->request->post('users/:userId/org-access', $options);
+    }
 }
