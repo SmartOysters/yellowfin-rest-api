@@ -52,6 +52,7 @@ class ResourceTest extends TestCase
 
         $resource->setEnabled(['list', 'fetch']);
 
+
         $this->assertTrue($resource->isEnabled('list'), 'List endpoint is available');
         $this->assertTrue($resource->isEnabled('fetch'), 'Fetch endpoint is available');
         $this->assertFalse($resource->isEnabled('update'), 'Update endpoint is disabled');
@@ -59,11 +60,11 @@ class ResourceTest extends TestCase
         $this->assertFalse($resource->isEnabled('delete'), 'Delete endpoint is disabled');
 
         $this->expectException(YellowfinException::class);
-        $this->expectExceptionMessage('The method update() is not available for the resource test_resource');
+        $this->expectExceptionMessage('The method update() is not available for the resource test-resource');
         $resource->__call('update', ['id', []]);
 
         $this->expectException(YellowfinException::class);
-        $this->expectExceptionMessage('The method create() is not available for the resource test_resource');
+        $this->expectExceptionMessage('The method create() is not available for the resource test-resource');
         $resource->__call('create', [[]]);
     }
 
@@ -84,11 +85,11 @@ class ResourceTest extends TestCase
         $this->assertTrue($resource->isEnabled('delete'), 'Delete endpoint is disabled');
 
         $this->expectException(YellowfinException::class);
-        $this->expectExceptionMessage('The method list() is not available for the resource test_resource');
+        $this->expectExceptionMessage('The method list() is not available for the resource test-resource');
         $resource->__call('list', [[]]);
 
         $this->expectException(YellowfinException::class);
-        $this->expectExceptionMessage('The method fetch() is not available for the resource test_resource');
+        $this->expectExceptionMessage('The method fetch() is not available for the resource test-resource');
         $resource->__call('fetch', ['id']);
     }
 }
