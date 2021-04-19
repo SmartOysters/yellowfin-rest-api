@@ -79,6 +79,18 @@ class Orgs extends Resource
     }
 
     /**
+     * Add login access for a user to this org
+     * @link * https://developers.yellowfinbi.com/dev/api-docs/v1.2/#operation/getOrgUserAccessList
+     *
+     * @param $ipOrg
+     * @return Response
+     */
+    public function getOrgUserAccessList($ipOrg)
+    {
+        return $this->request->post(':ipOrg/user-access', compact('ipOrg'));
+    }
+
+    /**
      * Remove a user's login access to the given org
      * @link https://developers.yellowfinbi.com/dev/api-docs/current/#operation/removeOrgUserAccess
      *
