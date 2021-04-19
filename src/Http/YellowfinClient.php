@@ -159,6 +159,20 @@ class YellowfinClient implements Client
     }
 
     /**
+     * Perform a PATCH request.
+     *
+     * @param $url
+     * @param array $parameters
+     * @return Response
+     */
+    public function patch($url, $parameters = [])
+    {
+        $request = new GuzzleRequest('PATCH', $url);
+
+        return $this->execute($request, ['json' => $parameters]);
+    }
+
+    /**
      * Perform a DELETE request.
      *
      * @param       $url

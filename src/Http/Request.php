@@ -17,6 +17,7 @@ use SmartOysters\Yellowfin\Exception\YellowfinException;
 
 /**
  * @method Response get($type, $target, $options = [])
+ * @method Response patch($type, $target, $options = [])
  * @method Response post($type, $target, $options = [])
  * @method Response put($type, $target, $options = [])
  * @method Response delete($type, $target, $options = [])
@@ -147,7 +148,7 @@ class Request
      */
     public function __call($name, $args = [])
     {
-        if (in_array($name, ['get', 'post', 'put', 'delete'])) {
+        if (in_array($name, ['get', 'patch', 'post', 'put', 'delete'])) {
             $options = !empty($args[1]) ? $args[1] : [];
 
             return $this->performRequest($name, $args[0], $options);

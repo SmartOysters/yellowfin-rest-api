@@ -23,6 +23,15 @@ interface Client
     public function get($url, $parameters = []);
 
     /**
+     * Perform a PATCH request.
+     *
+     * @param       $url
+     * @param array $parameters
+     * @return Response
+     */
+    public function patch($url, $parameters = []);
+
+    /**
      * Perform a POST request.
      *
      * @param       $url
