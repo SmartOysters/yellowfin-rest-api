@@ -58,7 +58,7 @@ class Orgs extends Resource
             $options
         );
 
-        return $this->request->put(':ipOrg', $options);
+        return $this->request->patch(':ipOrg', $options);
     }
 
     /**
