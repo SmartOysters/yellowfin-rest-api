@@ -189,7 +189,7 @@ class Yellowfin
         $client = new GuzzleClient([
             'headers' => [
                 'Content-Type' => "application/json",
-                'Accept' => "application/vnd.yellowfin.api-v1+json",
+                'Accept' => "application/vnd.yellowfin.api-v1.2+json",
                 'Authorization' => "YELLOWFIN ts={$time_format}, nonce={$nonce}"
             ]
         ]);
@@ -313,7 +313,7 @@ class Yellowfin
     public function __call($name, $arguments)
     {
         if (! in_array($name, get_class_methods(get_class()))) {
-            return $this->{$name};
+            return $this->make($name);
         }
     }
 
